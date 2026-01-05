@@ -1,6 +1,6 @@
 import 'bulma/css/bulma.css';
 import './App.scss';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export const goodsFromServer = [
   'Dumplings',
@@ -16,27 +16,30 @@ export const goodsFromServer = [
 ];
 
 export const App = () => {
-  const [sortFiled, setSortField] = useState('');
+  const [sortField, setSortField] = useState('');
   const [reversed, setReversed] = useState(false);
-  let visibleGoods = [...goodsFromServer].sort((good1, good2) => {
-    switch (sortFiled) {
-      case 'alph':
-        return good1.localeCompare(good2);
+  const visibleGoods = useMemo(() => {
+    const result = [...goodsFromServer];
 
-      case 'lngth':
-        return good1.length - good2.length;
+    result.sort((a, b) => {
+      switch (sortField) {
+        case 'alph':
+          return a.localeCompare(b);
 
-      case '':
-        return 0;
+        case 'lngth':
+          return a.length - b.length;
 
-      default:
-        return 0;
+        default:
+          return 0;
+      }
+    });
+
+    if (reversed) {
+      result.reverse();
     }
-  });
 
-  if (reversed) {
-    visibleGoods = visibleGoods.toReversed();
-  }
+    return result;
+  }, [sortField, reversed]);
 
   return (
     <div className="section content">
@@ -44,7 +47,7 @@ export const App = () => {
         <button
           type="button"
           className={
-            sortFiled === 'alph' ? 'button is-info' : 'button is-info is-light'
+            sortField === 'alph' ? 'button is-info' : 'button is-info is-light'
           }
           onClick={() => setSortField('alph')}
         >
@@ -54,7 +57,7 @@ export const App = () => {
         <button
           type="button"
           className={
-            sortFiled === 'lngth'
+            sortField === 'lngth'
               ? 'button is-success'
               : 'button is-success is-light'
           }
@@ -72,7 +75,7 @@ export const App = () => {
         >
           Reverse
         </button>
-        {(sortFiled !== '' || reversed) && (
+        {(sortField !== '' || reversed) && (
           <button
             type="button"
             className="button is-danger is-light"
